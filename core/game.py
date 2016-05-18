@@ -35,17 +35,20 @@ class KniffelGame(object):
         self._current_player = None
         self._roll_times = None
 
-    def add_player(self, player):
-        self._players.append(player)
-        self._scores[player] = OrderedDict([(key, None) for key in self.possible_scores + [self.UPPER_BONUS, self.KNIFFEL_BONUS]])
-        self._scores[player][self.KNIFFEL_BONUS] = 0
+    def add_player(self, *players):
+        for player in players:
+            self._players.append(player)
+            self._scores[player] = OrderedDict([(key, None) for key in self.possible_scores + [self.UPPER_BONUS, self.KNIFFEL_BONUS]])
+            self._scores[player][self.KNIFFEL_BONUS] = 0
 
     def play(self):
-        rounds = 13
+        rounds = len(self.possible_scores)
         while rounds > 0:
             for player in self.players:
                 self._set_new_round(player)
                 player.round(self)
+
+            rounds -= 1
 
         self._wind_up()
 
@@ -144,8 +147,15 @@ class KniffelGame(object):
         return self._scores
 
     @property
+    def total_scores(self):
+        return {player: self._player_score(player) for player in self.players}
+
+    def _player_score(self, player):
+        return sum(score for score in self._scores[player].values() if score is not None)
+
+    @property
     def my_score(self):
-        return sum(score for score in self._scores[self._current_player].values() if score is not None)
+        return self._player_score(self._current_player)
 
     @property
     def die(self):
@@ -185,5 +195,5 @@ class KniffelGame(object):
         return True
 
     def _wind_up(self):
-        # TODO
+        # print(self.total_scores)
         pass

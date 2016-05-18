@@ -10,5 +10,17 @@ AI Player Base shall be able to interact with the game in the following ways (ac
 
 class AIPlayerBase(object):
 
+    def __init__(self, name):
+
+        self._name = name
+
     def round(self, game):
+        # Must be implemented on subclass
         raise NotImplementedError
+
+    @property
+    def name(self):
+        return self._name
+
+    def __repr__(self):
+        return self.name
