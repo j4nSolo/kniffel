@@ -98,7 +98,7 @@ class KniffelGame(object):
             scores[self.KNIFFEL_BONUS] += 100
 
         # Upper section bonus
-        if all(score is not None for score in self.upper_section_scores):
+        if all(score is not None for score in self.upper_section_scores.values()):
             self._score_bonus()
 
         # Reset
