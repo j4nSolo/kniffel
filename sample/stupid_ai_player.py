@@ -20,7 +20,7 @@ class StupidAIPlayer(AIPlayerBase):
         while True:
             try:
                 # Try to score on the category
-                game.score(game.possible_scores[category])
+                game.score(game.categories[category])
                 # Break once the player has scored
                 break
             except AssertionError:
