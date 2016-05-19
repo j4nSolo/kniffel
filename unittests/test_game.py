@@ -252,6 +252,46 @@ class TestKniffelGame(TestCase):
         with patch.object(game, '_current_rolled_die', kniffel_of_fours):
             self.assertEqual(game.calculate_score(game.KNIFFEL), 50)
 
+    def test_calculate_bonus(self):
+
+        game = KniffelGame()
+
+        player = "dummy_player"
+
+        game.add_player(player)
+
+        game._set_new_round(player)
+
+        upper_section_score = 0
+        # Assign highest value to every category on the upper section
+        for dice_value, category in enumerate(game.categories[:6]):
+            score = (dice_value + 1) * 5
+            game._scores[player][category] = score
+            upper_section_score += score
+
+        # Force calculation
+        game._score_bonus()
+
+        self.assertEqual(game.my_score, upper_section_score + game.BONUS_VALUE)
+
+        # Subtract the sixes
+        upper_section_score -= game._scores[player][game.SIXES]
+        game._scores[player][game.SIXES] = 0
+        game._score_bonus()
+        self.assertEqual(game.my_score, upper_section_score + game.BONUS_VALUE)
+
+        # Subtract 3 fours so that it is exactly in the threshold
+        upper_section_score -= 3 * 4
+        game._scores[player][game.FOURS] -= 3 * 4
+        game._score_bonus()
+        self.assertEqual(game.my_score, upper_section_score + game.BONUS_VALUE)
+
+        # Subtract 1 so that the bonus is not reached
+        upper_section_score -= 1
+        game._scores[player][game.ONES] -= 1
+        game._score_bonus()
+        self.assertEqual(game.my_score, upper_section_score)
+
     def test_score(self):
 
         game = KniffelGame()

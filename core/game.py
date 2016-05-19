@@ -21,12 +21,19 @@ class KniffelGame(object):
     UPPER_BONUS = "upper bonus"
     KNIFFEL_BONUS = "kniffel bonus"
 
-    possible_scores = [
-        ONES, TWOS, THREES, FOURS, FIVES, SIXES,
+    BONUS_VALUE = 35
+    UPPER_SECTION_MIN_SCORE_FOR_BONUS = sum(range(1, 7)) * 3  # = 63
+
+    UPPER_SECTION = [ONES, TWOS, THREES, FOURS, FIVES, SIXES]
+
+    categories = UPPER_SECTION + [
         THREE_X, FOUR_X, FULL_HOUSE, SMALL_STRAIGHT, LARGE_STRAIGHT,
         CHANCE, KNIFFEL]
 
     def __init__(self):
+        """
+        Creates a new game with no players beforehand.
+        """
 
         self._players = []
         self._current_saved_die = None
@@ -38,11 +45,11 @@ class KniffelGame(object):
     def add_player(self, *players):
         for player in players:
             self._players.append(player)
-            self._scores[player] = OrderedDict([(key, None) for key in self.possible_scores + [self.UPPER_BONUS, self.KNIFFEL_BONUS]])
+            self._scores[player] = OrderedDict([(key, None) for key in self.categories + [self.UPPER_BONUS, self.KNIFFEL_BONUS]])
             self._scores[player][self.KNIFFEL_BONUS] = 0
 
     def play(self):
-        rounds = len(self.possible_scores)
+        rounds = len(self.categories)
         while rounds > 0:
             for player in self.players:
                 self._set_new_round(player)
@@ -85,9 +92,14 @@ class KniffelGame(object):
         scores[category] = self.calculate_score(category)
         kniffel = True if min(self.die) == max(self.die) else False
 
+        # Kniffel bonus
         if previous_kniffel and kniffel:
             # Extra points for second kniffel
             scores[self.KNIFFEL_BONUS] += 100
+
+        # Upper section bonus
+        if all(score is not None for score in self.upper_section_scores):
+            self._score_bonus()
 
         # Reset
         self._reset()
@@ -144,18 +156,39 @@ class KniffelGame(object):
 
     @property
     def scores(self):
+        """
+        All current player's scores per category
+        :return: Dictionary with scores
+        :rtype: dict(str, int|None)
+        """
         return self._scores
 
     @property
     def total_scores(self):
+        """
+        Total scores per player
+        :return: Dictionary with scores
+        :rtype: dict(AIPlayerBase, int)
+        """
         return {player: self._player_score(player) for player in self.players}
-
-    def _player_score(self, player):
-        return sum(score for score in self._scores[player].values() if score is not None)
 
     @property
     def my_score(self):
+        """
+        Current player's total score
+        :return: Total score
+        :rtype: int
+        """
         return self._player_score(self._current_player)
+
+    @property
+    def upper_section_scores(self):
+        """
+        Scores per category for the upper section
+        :return: Dictionary of category:score
+        :rtype: dict(str, int|None)
+        """
+        return {category: self._scores[self._current_player][category] for category in self.UPPER_SECTION}
 
     @property
     def die(self):
@@ -168,6 +201,9 @@ class KniffelGame(object):
     @property
     def players(self):
         return self._players
+
+    def _player_score(self, player):
+        return sum(score for score in self._scores[player].values() if score is not None)
 
     def _shuffle(self):
         shuffle(self._players)
@@ -193,6 +229,13 @@ class KniffelGame(object):
             return False
 
         return True
+
+    def _score_bonus(self):
+
+        upper_section_score = sum(self.upper_section_scores.values())
+
+        bonus = self.BONUS_VALUE if upper_section_score >= self.UPPER_SECTION_MIN_SCORE_FOR_BONUS else 0
+        self.scores[self._current_player][self.UPPER_BONUS] = bonus
 
     def _wind_up(self):
         # print(self.total_scores)
