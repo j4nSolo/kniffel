@@ -79,6 +79,12 @@ class KniffelGame(object):
         assert self._current_rolled_die is not None
         assert self._check_die_availability(die)
 
+        not_saved = self.die
+
+        for dice in die:
+            not_saved.remove(dice)
+
+        self._current_rolled_die = not_saved
         self._current_saved_die = die
 
     def score(self, category):
@@ -192,6 +198,11 @@ class KniffelGame(object):
 
     @property
     def die(self):
+        """
+        Provides all die available to the player. i.e.: Saved + not saved die
+        :return: Die
+        :rtype: list[int]
+        """
 
         try:
             return self._current_rolled_die + (self._current_saved_die if self._current_saved_die is not None else [])

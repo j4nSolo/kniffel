@@ -102,6 +102,12 @@ class TestKniffelGame(TestCase):
         game._current_rolled_die = [2]
         self.assertRaises(AssertionError, game.save, [6])
 
+        # After saving, the available die must be equal than before it
+        game.roll()
+        die_before = game.die
+        game.save(game.die)
+        self.assertEqual(die_before, game.die)
+
     def test_check_die_availability(self):
 
         game = KniffelGame()
