@@ -21,7 +21,7 @@ class Tournament(object):
             game.add_player(*self._players)
             game.play()
 
-            print(game.total_scores.values())
+            print(list(game.total_scores.values()))
 
             # Get winner
             max_points = max(game.total_scores.values())
@@ -34,7 +34,7 @@ class Tournament(object):
             games_no=len(self._games),
             distribution=", ".join(("{player_name} won {won_games_no}".format(
                 player_name=player_name, won_games_no=won_games_no
-            ) for player_name, won_games_no in winning_distribution.iteritems()))
+            ) for player_name, won_games_no in iter(winning_distribution.items())))
         ))
         print("Maximum score was {}".format(max_score))
 
