@@ -4,6 +4,10 @@ Stupid player. Just rolls once and tries to score it in the first possible categ
 
 from core.ai_player import AIPlayerBase
 
+# Properties for this AI
+__ai_class__ = "StupidAIPlayer"
+__ai_name__ = "Stupid"
+
 
 class StupidAIPlayer(AIPlayerBase):
 
